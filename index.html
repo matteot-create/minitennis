@@ -90,6 +90,18 @@ header {
   font-size: 14px;
 }
 
+#back-btn {
+  background:#B91C1C;
+  color:white;
+  padding:8px 14px;
+  border:none;
+  border-radius:8px;
+  margin:10px;
+  font-size:16px;
+  cursor:pointer;
+  display:none;
+}
+
 #main {
   flex: 1;
   display: flex;
@@ -232,6 +244,7 @@ header {
 </head>
 <body>
 <header>MiniTennis Lobby</header>
+<button id="back-btn">Back to lobby</button>
 
 <div id="top-bar">
   <input id="name-input" type="text" placeholder="Your name" />
@@ -303,24 +316,19 @@ let inChat = false;
 
 const joinSound = document.getElementById("join-sound");
 const langSelect = document.getElementById("lang-select");
-
-// URL params per chat privata
-const urlParams = new URLSearchParams(window.location.search);
-const privateRoom = urlParams.get("room");
-const privateWith = urlParams.get("with");
+const chatDiv = document.getElementById("chat");
+const backBtn = document.getElementById("back-btn");
 
 let activeChatRef = chatRef;
+let currentMessagesRef = null;
+let currentMessagesHandler = null;
 
-if (privateRoom) {
-  document.querySelector("header").textContent = "Private chat with " + privateWith;
-  activeChatRef = db.ref("privateChats/" + privateRoom);
-
-  // FIX: ora la chat privata è considerata "entrata"
-  inChat = true;
-
-  // pulisco eventuale invito pendente
-  privateInvitesRef.child(myId).remove();
-}
+// lingua persistente
+const savedLang = localStorage.getItem("chatLang");
+if (savedLang) langSelect.value = savedLang;
+langSelect.onchange = () => {
+  localStorage.setItem("chatLang", langSelect.value);
+};
 
 function getName() {
   return document.getElementById("name-input").value.trim();
@@ -427,6 +435,10 @@ function leaveChat() {
   presenceRef.child(myId).remove();
   availableRef.child(myId).remove();
   document.getElementById("available-checkbox").checked = false;
+  backBtn.style.display = "none";
+  document.querySelector("header").textContent = "MiniTennis Lobby";
+  activeChatRef = chatRef;
+  loadMessages();
   refreshUsers();
 }
 
@@ -483,27 +495,38 @@ document.getElementById("message-input").addEventListener("keydown", e => {
   if (e.key === "Enter") document.getElementById("send-btn").click();
 });
 
-const chatDiv = document.getElementById("chat");
+function loadMessages() {
+  chatDiv.innerHTML = "";
 
-activeChatRef.limitToLast(20).on("child_added", async snap => {
-  const msg = snap.val();
-  const div = document.createElement("div");
-  div.className = "msg";
-  let translated = "";
-  if (!msg.system) {
-    translated = await translateText(msg.text, langSelect.value);
+  if (currentMessagesRef && currentMessagesHandler) {
+    currentMessagesRef.off("child_added", currentMessagesHandler);
   }
 
-  div.innerHTML = `
-    <span class="user">${msg.user}</span>
-    <span class="time">${new Date(msg.time).toLocaleTimeString()}</span>:
-    ${msg.text}
-    ${msg.system ? "" : `<span class="translated">→ ${translated}</span>`}
-  `;
+  currentMessagesRef = activeChatRef;
+  currentMessagesHandler = async snap => {
+    const msg = snap.val();
+    const div = document.createElement("div");
+    div.className = "msg";
+    let translated = "";
+    if (!msg.system) {
+      translated = await translateText(msg.text, langSelect.value);
+    }
 
-  chatDiv.appendChild(div);
-  chatDiv.scrollTop = chatDiv.scrollHeight;
-});
+    div.innerHTML = `
+      <span class="user">${msg.user}</span>
+      <span class="time">${new Date(msg.time).toLocaleTimeString()}</span>:
+      ${msg.text}
+      ${msg.system ? "" : `<span class="translated">→ ${translated}</span>`}
+    `;
+
+    chatDiv.appendChild(div);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+  };
+
+  currentMessagesRef.limitToLast(20).on("child_added", currentMessagesHandler);
+}
+
+loadMessages();
 
 document.getElementById("available-checkbox").addEventListener("change", () => {
   if (!inChat) {
@@ -527,12 +550,28 @@ document.getElementById("available-checkbox").addEventListener("change", () => {
 const usersListDiv = document.getElementById("users-list");
 let previousUsers = {};
 
-function openPrivateChat(targetId, targetName) {
-  const roomId = [myId, targetId].sort().join("_");
-  window.location.href = "?room=" + roomId + "&with=" + encodeURIComponent(targetName);
+function enterPrivateChat(roomId, targetName) {
+  activeChatRef = db.ref("privateChats/" + roomId);
+  document.querySelector("header").textContent = "Private chat with " + targetName;
+  backBtn.style.display = "inline-block";
+
+  presenceRef.child(myId).set({
+    name: getName(),
+    lastSeen: Date.now()
+  });
+  presenceRef.child(myId).onDisconnect().remove();
+
+  inChat = true;
+  loadMessages();
 }
 
-// INVITO PRIVATO (Opzione C)
+backBtn.onclick = () => {
+  activeChatRef = chatRef;
+  document.querySelector("header").textContent = "MiniTennis Lobby";
+  backBtn.style.display = "none";
+  loadMessages();
+};
+
 function sendPrivateInvite(targetId, targetName) {
   if (targetId === myId) return;
 
@@ -545,8 +584,7 @@ function sendPrivateInvite(targetId, targetName) {
     timestamp: Date.now()
   });
 
-  // mittente entra subito nella stanza privata (URL)
-  window.location.href = "?room=" + roomId + "&with=" + encodeURIComponent(targetName);
+  enterPrivateChat(roomId, targetName);
 }
 
 function refreshUsers() {
@@ -569,4 +607,56 @@ function refreshUsers() {
 
     Object.keys(presenceData).forEach(id => {
       const user = presenceData[id];
-      if (!user ||
+      if (!user || !user.name) return;
+      const name = user.name;
+      const isAvailable = !!availableData[id];
+
+      const row = document.createElement("div");
+      row.className = "user-row";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "user-name";
+      nameSpan.textContent = name;
+
+      const statusSpan = document.createElement("span");
+      statusSpan.className = "status " + (isAvailable ? "available" : "unavailable");
+      if (isAvailable && id !== myId) {
+        statusSpan.style.cursor = "pointer";
+        statusSpan.textContent = "Available (1v1)";
+        statusSpan.onclick = () => sendPrivateInvite(id, name);
+      } else {
+        statusSpan.textContent = isAvailable ? "Available" : "Not available";
+      }
+      row.appendChild(nameSpan);
+      row.appendChild(statusSpan);
+      usersListDiv.appendChild(row);
+    });
+  });
+}
+
+presenceRef.on("value", refreshUsers);
+availableRef.on("value", refreshUsers);
+
+// Listener inviti privati (banner)
+privateInvitesRef.child(myId).on("value", snap => {
+  const invite = snap.val();
+  const banner = document.getElementById("inviteBanner");
+  const textSpan = document.getElementById("inviteText");
+  const joinBtn = document.getElementById("joinPrivateBtn");
+
+  if (!invite) {
+    banner.style.display = "none";
+    return;
+  }
+
+  banner.style.display = "block";
+  textSpan.textContent = `${invite.fromName} wants to play 1v1 with you`;
+
+  joinBtn.onclick = () => {
+    privateInvitesRef.child(myId).remove();
+    enterPrivateChat(invite.roomId, invite.fromName);
+  };
+});
+</script>
+</body>
+</html>
