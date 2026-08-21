@@ -1,99 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Realtime Lobby</title>
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>MiniTennis Lobby</title>
 <style>
 body {
   margin: 0;
-  font-family: Arial;
-  background: #f2f2f2;
-}
-
-#container {
-  display: flex;
+  background: #0A1A2F;
+  color: #FFFFFF;
+  font-family: system-ui, -apple-system, sans-serif;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* LEFT: CHAT */
-#chatArea {
+header {
+  background: #123A63;
+  padding: 14px;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  border-bottom: 3px solid #1E5A8C;
+  letter-spacing: 1px;
+}
+
+#top-bar {
+  padding: 12px;
+  background: #0A1A2F;
+  border-bottom: 2px solid #1E5A8C;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#name-input {
+  flex: 2;
+  min-width: 160px;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 2px solid #1E5A8C;
+  background: #123A63;
+  color: #FFFFFF;
+}
+
+#availability-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 140px;
+  font-size: 14px;
+}
+
+#enter-btn, #leave-btn {
+  padding: 10px 14px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  flex: 0 0 auto;
+  transition: 0.2s;
+}
+
+#enter-btn {
+  background: #1E5A8C;
+  color: white;
+}
+#enter-btn:hover {
+  background: #2270b8;
+}
+
+#leave-btn {
+  background: #B91C1C;
+  color: #FFFFFF;
+}
+#leave-btn:hover {
+  background: #d62828;
+}
+
+#lang-select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 2px solid #1E5A8C;
+  background: #123A63;
+  color: #FFFFFF;
+  font-size: 14px;
+}
+
+#main {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+#chat-area {
   flex: 3;
   display: flex;
   flex-direction: column;
-  background: white;
-  border-right: 2px solid #ddd;
+  border-right: 3px solid #1E5A8C;
 }
 
-#chatHeader {
-  padding: 10px;
-  background: #007bff;
-  color: white;
+#chat {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.msg {
+  margin-bottom: 10px;
+  padding: 6px 0;
+  border-left: 3px solid #1E5A8C;
+  padding-left: 10px;
+}
+
+.msg span.user {
+  font-weight: 700;
+  color: #4ADE80;
+}
+.msg span.time {
+  font-size: 12px;
+  color: #A3C7E8;
+  margin-left: 6px;
+}
+
+.msg span.translated {
+  display: block;
+  font-size: 14px;
+  color: #A3C7E8;
+  margin-left: 4px;
+  margin-top: 2px;
+}
+
+#users-panel {
+  flex: 2;
+  padding: 12px;
+  overflow-y: auto;
+  font-size: 16px;
+  background: #0A1A2F;
+}
+
+#users-panel h2 {
+  margin: 0 0 10px;
   font-size: 18px;
+  color: #FFFFFF;
+  border-bottom: 2px solid #1E5A8C;
+  padding-bottom: 6px;
+}
+
+.user-row {
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: #123A63;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-left: 4px solid #1E5A8C;
 }
 
-#leavePrivateBtn {
-  display: none;
-  background: #ff4444;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
+.status.available {
+  background: #4ADE80;
+  color: #0A1A2F;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
 }
 
-#messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
+.status.unavailable {
+  background: #B91C1C;
+  color: #FFFFFF;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
 }
 
-#inputArea {
+#input-area {
   display: flex;
+  gap: 8px;
   padding: 10px;
-  border-top: 1px solid #ddd;
+  background: #123A63;
+  border-top: 3px solid #1E5A8C;
 }
 
-#msgInput {
+#message-input {
   flex: 1;
   padding: 10px;
   font-size: 16px;
+  border-radius: 8px;
+  border: 2px solid #1E5A8C;
+  background: #0A1A2F;
+  color: #FFFFFF;
 }
 
-#sendBtn {
-  padding: 10px 20px;
-  background: #007bff;
-  color: white;
+#send-btn {
+  padding: 10px 14px;
+  font-size: 16px;
+  border-radius: 8px;
   border: none;
-  cursor: pointer;
-}
-
-/* RIGHT: MEMBERS */
-#membersArea {
-  flex: 1;
-  background: #fafafa;
-  padding: 10px;
-}
-
-.member {
-  padding: 10px;
-  background: white;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.availableBtn {
-  background: #28a745;
+  background: #1E5A8C;
   color: white;
-  padding: 4px 8px;
-  border-radius: 6px;
-  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+#send-btn:hover {
+  background: #2270b8;
 }
 
 /* INVITE BANNER */
@@ -102,231 +217,404 @@ body {
   background: #ffe680;
   padding: 10px;
   border-bottom: 2px solid #e6c200;
+  color: #0A1A2F;
 }
-
 #inviteBanner button {
   margin-left: 10px;
   padding: 6px 12px;
   cursor: pointer;
+  border-radius: 6px;
+  border: none;
+  background: #1E5A8C;
+  color: white;
 }
 </style>
 </head>
-
 <body>
+<header>MiniTennis Lobby</header>
+
+<div id="top-bar">
+  <input id="name-input" type="text" placeholder="Your name" />
+  <div id="availability-group">
+    <input type="checkbox" id="available-checkbox">
+    <label for="available-checkbox">Available to play</label>
+  </div>
+  <button id="enter-btn">Enter chat</button>
+  <button id="leave-btn">Leave chat</button>
+  <select id="lang-select">
+    <option value="en">English</option>
+    <option value="it">Italiano</option>
+    <option value="fr">Français</option>
+    <option value="de">Deutsch</option>
+    <option value="es">Español</option>
+    <option value="pt">Português</option>
+  </select>
+</div>
 
 <div id="inviteBanner">
   <span id="inviteText"></span>
   <button id="joinPrivateBtn">Join private chat</button>
 </div>
 
-<div id="container">
-
-  <div id="chatArea">
-    <div id="chatHeader">
-      <span id="chatTitle">General Chat</span>
-      <span id="leavePrivateBtn">Leave private chat</span>
-    </div>
-
-    <div id="messages"></div>
-
-    <div id="inputArea">
-      <input id="msgInput" placeholder="Type a message ...">
-      <button id="sendBtn">Send</button>
-    </div>
+<div id="main">
+  <div id="chat-area">
+    <div id="chat"></div>
   </div>
 
-  <div id="membersArea">
-    <h3>Members</h3>
-    <div id="membersList"></div>
+  <div id="users-panel">
+    <h2>Members</h2>
+    <div id="users-list"></div>
   </div>
-
 </div>
 
-<!-- JAVASCRIPT COMPLETO -->
-<script type="module">
+<div id="input-area">
+  <input id="message-input" type="text" placeholder="Write a message…" />
+  <button id="send-btn">Send</button>
+</div>
 
-/* ===============================
-   FIREBASE INIT
-=============================== */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore, doc, setDoc, deleteDoc,
-  collection, addDoc, onSnapshot, query, orderBy
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<audio id="join-sound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script>
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_SENDER",
-  appId: "YOUR_APP"
+  apiKey: "AIzaSyDsrvmrORKjSyicHxSV75NIi6uiZje_paQ",
+  authDomain: "minitennis-lobby.firebaseapp.com",
+  projectId: "minitennis-lobby",
+  storageBucket: "minitennis-lobby.firebasestorage.app",
+  messagingSenderId: "72650019198",
+  appId: "1:72650019198:web:edb6fc782358d8d29a232f",
+  measurementId: "G-PTSLJT3EX5",
+  databaseURL: "https://minitennis-lobby-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
 
-/* ===============================
-   GLOBAL STATE
-=============================== */
-let currentUser = prompt("Enter your name:");
-let currentRoom = "general";
+const db = firebase.database();
+const chatRef = db.ref("chat");
+const presenceRef = db.ref("presence");
+const availableRef = db.ref("available");
+const strikesRef = db.ref("strikes");
+const bansRef = db.ref("bans");
+const privateInvitesRef = db.ref("privateInvites");
 
-/* ===============================
-   DOM ELEMENTS
-=============================== */
-const messagesDiv = document.getElementById("messages");
-const msgInput = document.getElementById("msgInput");
-const sendBtn = document.getElementById("sendBtn");
-const membersList = document.getElementById("membersList");
-const chatTitle = document.getElementById("chatTitle");
-const leavePrivateBtn = document.getElementById("leavePrivateBtn");
-const inviteBanner = document.getElementById("inviteBanner");
-const inviteText = document.getElementById("inviteText");
-const joinPrivateBtn = document.getElementById("joinPrivateBtn");
+const myId = Math.random().toString(36).slice(2);
+let inChat = false;
 
-/* ===============================
-   PRESENCE SYSTEM
-=============================== */
-async function setPresence() {
-  await setDoc(doc(db, "presence", currentUser), {
-    name: currentUser,
-    timestamp: Date.now()
+const joinSound = document.getElementById("join-sound");
+const langSelect = document.getElementById("lang-select");
+
+// URL params per chat privata
+const urlParams = new URLSearchParams(window.location.search);
+const privateRoom = urlParams.get("room");
+const privateWith = urlParams.get("with");
+
+let activeChatRef = chatRef;
+
+if (privateRoom) {
+  document.querySelector("header").textContent = "Private chat with " + privateWith;
+  activeChatRef = db.ref("privateChats/" + privateRoom);
+  // pulisco eventuale invito pendente
+  privateInvitesRef.child(myId).remove();
+}
+
+function getName() {
+  return document.getElementById("name-input").value.trim();
+}
+
+function getDeviceFingerprint() {
+  return btoa(
+    navigator.userAgent +
+    screen.width +
+    screen.height +
+    navigator.language +
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
+}
+
+function systemMessage(text) {
+  activeChatRef.push({
+    user: "SYSTEM",
+    text: text,
+    time: Date.now(),
+    system: true
   });
 }
-setPresence();
-setInterval(setPresence, 20000);
 
-/* ===============================
-   LOAD MEMBERS LIST
-=============================== */
-onSnapshot(collection(db, "presence"), (snapshot) => {
-  membersList.innerHTML = "";
+async function translateText(text, targetLang) {
+  try {
+    const res = await fetch(
+      "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=" +
+      targetLang +
+      "&dt=t&q=" +
+      encodeURIComponent(text)
+    );
+    const data = await res.json();
+    return data[0][0][0] || "";
+  } catch {
+    return "";
+  }
+}
 
-  snapshot.forEach((docSnap) => {
-    const user = docSnap.id;
+const badWords = ["fuck","shit","bitch","asshole","cazzo","merda","stronzo","troia"];
 
-    const div = document.createElement("div");
-    div.className = "member";
-    div.innerHTML = `
-      <span>${user}</span>
-      <span class="availableBtn" data-user="${user}">Available</span>
-    `;
-    membersList.appendChild(div);
+function containsBadWord(text) {
+  const lower = text.toLowerCase();
+  return badWords.some(w => lower.includes(w));
+}
+
+function addStrike(userId, userName) {
+  strikesRef.child(userId).once("value").then(snap => {
+    let strikes = snap.val() || 0;
+    strikes++;
+    strikesRef.child(userId).set(strikes);
+
+    systemMessage(`${userName} warning: inappropriate language (${strikes}/3)`);
+    if (strikes >= 3) {
+      const banUntil = Date.now() + (2 * 60 * 60 * 1000);
+      const deviceId = getDeviceFingerprint();
+      bansRef.child(deviceId).set(banUntil);
+
+      systemMessage(`${userName} has been banned for 2 hours`);
+      presenceRef.child(userId).remove();
+      availableRef.child(userId).remove();
+    }
+  });
+}
+
+async function enterChat() {
+  const name = getName();
+  const input = document.getElementById("name-input");
+  if (!name) {
+    input.style.borderColor = "#dc2626";
+    alert("Please enter your name.");
+    return;
+  }
+  const deviceId = getDeviceFingerprint();
+  const banUntil = await bansRef.child(deviceId).once("value").then(s => s.val());
+  if (banUntil && Date.now() < banUntil) {
+    const remaining = Math.ceil((banUntil - Date.now()) / 60000);
+    alert(`You are banned. Try again in ${remaining} minutes.`);
+    return;
+  }
+
+  input.style.borderColor = "#4ADE80";
+
+  presenceRef.child(myId).set({
+    name: name,
+    lastSeen: Date.now()
   });
 
-  document.querySelectorAll(".availableBtn").forEach(btn => {
-    btn.onclick = () => {
-      const targetUser = btn.dataset.user;
-      if (targetUser !== currentUser) {
-        createPrivateInvite(targetUser);
-      }
-    };
+  presenceRef.child(myId).onDisconnect().remove();
+  availableRef.child(myId).onDisconnect().remove();
+  systemMessage(`${name} has joined the chat`);
+
+  inChat = true;
+  refreshUsers();
+}
+
+document.getElementById("enter-btn").addEventListener("click", enterChat);
+
+function leaveChat() {
+  if (inChat) {
+    systemMessage(`${getName()} has left the chat`);
+  }
+  inChat = false;
+  presenceRef.child(myId).remove();
+  availableRef.child(myId).remove();
+  document.getElementById("available-checkbox").checked = false;
+  refreshUsers();
+}
+
+document.getElementById("leave-btn").addEventListener("click", leaveChat);
+
+// Heartbeat ogni 5s
+setInterval(() => {
+  if (inChat) {
+    presenceRef.child(myId).update({
+      lastSeen: Date.now()
+    });
+  }
+}, 5000);
+
+// Timeout 45s
+setInterval(async () => {
+  const snap = await presenceRef.once("value");
+  const data = snap.val() || {};
+  const now = Date.now();
+  const limit = 45 * 1000;
+  Object.keys(data).forEach(id => {
+    if (now - data[id].lastSeen > limit) {
+      presenceRef.child(id).remove();
+      availableRef.child(id).remove();
+    }
   });
+  refreshUsers();
+}, 5000);
+
+function sendMessage(text) {
+  if (!inChat) {
+    alert("Enter chat first.");
+    return;
+  }
+  if (containsBadWord(text)) {
+    addStrike(myId, getName());
+    return;
+  }
+  activeChatRef.push({
+    user: getName(),
+    text: text,
+    time: Date.now()
+  });
+}
+
+document.getElementById("send-btn").onclick = () => {
+  const input = document.getElementById("message-input");
+  const text = input.value.trim();
+  if (text) sendMessage(text);
+  input.value = "";
+};
+
+document.getElementById("message-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("send-btn").click();
 });
 
-/* ===============================
-   PRIVATE CHAT INVITE SYSTEM
-=============================== */
-function createPrivateInvite(targetUser) {
-  const roomId = [currentUser, targetUser].sort().join("_");
+const chatDiv = document.getElementById("chat");
 
-  setDoc(doc(db, "privateInvites", targetUser), {
-    from: currentUser,
+activeChatRef.limitToLast(20).on("child_added", async snap => {
+  const msg = snap.val();
+  const div = document.createElement("div");
+  div.className = "msg";
+  let translated = "";
+  if (!msg.system) {
+    translated = await translateText(msg.text, langSelect.value);
+  }
+
+  div.innerHTML = `
+    <span class="user">${msg.user}</span>
+    <span class="time">${new Date(msg.time).toLocaleTimeString()}</span>:
+    ${msg.text}
+    ${msg.system ? "" : `<span class="translated">→ ${translated}</span>`}
+  `;
+
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+});
+
+document.getElementById("available-checkbox").addEventListener("change", () => {
+  if (!inChat) {
+    document.getElementById("available-checkbox").checked = false;
+    alert("Enter chat first.");
+    return;
+  }
+
+  if (document.getElementById("available-checkbox").checked) {
+    availableRef.child(myId).set({
+      name: getName(),
+      since: Date.now()
+    });
+  } else {
+    availableRef.child(myId).remove();
+  }
+
+  refreshUsers();
+});
+
+const usersListDiv = document.getElementById("users-list");
+let previousUsers = {};
+
+function openPrivateChat(targetId, targetName) {
+  const roomId = [myId, targetId].sort().join("_");
+  window.location.href = "?room=" + roomId + "&with=" + encodeURIComponent(targetName);
+}
+
+// INVITO PRIVATO (Opzione C)
+function sendPrivateInvite(targetId, targetName) {
+  if (targetId === myId) return;
+
+  const roomId = [myId, targetId].sort().join("_");
+
+  privateInvitesRef.child(targetId).set({
+    fromId: myId,
+    fromName: getName(),
     roomId: roomId,
     timestamp: Date.now()
   });
 
-  joinPrivateChat(roomId);
+  // mittente entra subito nella stanza privata (URL)
+  window.location.href = "?room=" + roomId + "&with=" + encodeURIComponent(targetName);
 }
 
-onSnapshot(doc(db, "privateInvites", currentUser), (docSnap) => {
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    inviteBanner.style.display = "block";
-    inviteText.innerText = `${data.from} wants to chat privately with you`;
+function refreshUsers() {
+  Promise.all([
+    presenceRef.once("value"),
+    availableRef.once("value")
+  ]).then(([presenceSnap, availableSnap]) => {
+    const presenceData = presenceSnap.val() || {};
+    const availableData = availableSnap.val() || {};
 
-    joinPrivateBtn.onclick = () => {
-      joinPrivateChat(data.roomId);
-      deleteDoc(doc(db, "privateInvites", currentUser));
-      inviteBanner.style.display = "none";
-    };
-  } else {
-    inviteBanner.style.display = "none";
-  }
-});
-
-/* ===============================
-   SWITCH TO PRIVATE CHAT
-=============================== */
-function joinPrivateChat(roomId) {
-  currentRoom = roomId;
-  chatTitle.innerText = `Private Chat (${roomId})`;
-  leavePrivateBtn.style.display = "inline-block";
-  loadMessages();
-}
-
-/* ===============================
-   LEAVE PRIVATE CHAT
-=============================== */
-leavePrivateBtn.onclick = () => {
-  currentRoom = "general";
-  chatTitle.innerText = "General Chat";
-  leavePrivateBtn.style.display = "none";
-  loadMessages();
-};
-
-/* ===============================
-   LOAD MESSAGES
-=============================== */
-let unsubscribeMessages = null;
-
-function loadMessages() {
-  if (unsubscribeMessages) unsubscribeMessages();
-
-  messagesDiv.innerHTML = "";
-
-  const col = currentRoom === "general"
-    ? collection(db, "chat")
-    : collection(db, "privateChats", currentRoom, "messages");
-
-  const q = query(col, orderBy("timestamp"));
-
-  unsubscribeMessages = onSnapshot(q, (snapshot) => {
-    messagesDiv.innerHTML = "";
-    snapshot.forEach((docSnap) => {
-      const msg = docSnap.data();
-      const div = document.createElement("div");
-      div.innerHTML = `<b>${msg.user}:</b> ${msg.text}`;
-      messagesDiv.appendChild(div);
+    Object.keys(presenceData).forEach(id => {
+      if (!previousUsers[id] && id !== myId) {
+        joinSound.play();
+      }
     });
 
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    previousUsers = presenceData;
+
+    usersListDiv.innerHTML = "";
+
+    Object.keys(presenceData).forEach(id => {
+      const user = presenceData[id];
+      if (!user || !user.name) return;
+      const name = user.name;
+      const isAvailable = !!availableData[id];
+
+      const row = document.createElement("div");
+      row.className = "user-row";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "user-name";
+      nameSpan.textContent = name;
+
+      const statusSpan = document.createElement("span");
+      statusSpan.className = "status " + (isAvailable ? "available" : "unavailable");
+      if (isAvailable && id !== myId) {
+        statusSpan.style.cursor = "pointer";
+        statusSpan.textContent = "Available (1v1)";
+        statusSpan.onclick = () => sendPrivateInvite(id, name);
+      } else {
+        statusSpan.textContent = isAvailable ? "Available" : "Not available";
+      }
+      row.appendChild(nameSpan);
+      row.appendChild(statusSpan);
+      usersListDiv.appendChild(row);
+    });
   });
 }
 
-loadMessages();
+presenceRef.on("value", refreshUsers);
+availableRef.on("value", refreshUsers);
 
-/* ===============================
-   SEND MESSAGE
-=============================== */
-sendBtn.onclick = async () => {
-  const text = msgInput.value.trim();
-  if (!text) return;
+// Listener inviti privati (banner)
+privateInvitesRef.child(myId).on("value", snap => {
+  const invite = snap.val();
+  const banner = document.getElementById("inviteBanner");
+  const textSpan = document.getElementById("inviteText");
+  const joinBtn = document.getElementById("joinPrivateBtn");
 
-  const col = currentRoom === "general"
-    ? collection(db, "chat")
-    : collection(db, "privateChats", currentRoom, "messages");
+  if (!invite) {
+    banner.style.display = "none";
+    return;
+  }
 
-  await addDoc(col, {
-    user: currentUser,
-    text: text,
-    timestamp: Date.now()
-  });
+  banner.style.display = "block";
+  textSpan.textContent = `${invite.fromName} wants to play 1v1 with you`;
 
-  msgInput.value = "";
-};
-
+  joinBtn.onclick = () => {
+    privateInvitesRef.child(myId).remove();
+    window.location.href = "?room=" + invite.roomId + "&with=" + encodeURIComponent(invite.fromName);
+  };
+});
 </script>
 </body>
 </html>
