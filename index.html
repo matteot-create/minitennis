@@ -314,6 +314,10 @@ let activeChatRef = chatRef;
 if (privateRoom) {
   document.querySelector("header").textContent = "Private chat with " + privateWith;
   activeChatRef = db.ref("privateChats/" + privateRoom);
+
+  // FIX: ora la chat privata è considerata "entrata"
+  inChat = true;
+
   // pulisco eventuale invito pendente
   privateInvitesRef.child(myId).remove();
 }
@@ -565,56 +569,4 @@ function refreshUsers() {
 
     Object.keys(presenceData).forEach(id => {
       const user = presenceData[id];
-      if (!user || !user.name) return;
-      const name = user.name;
-      const isAvailable = !!availableData[id];
-
-      const row = document.createElement("div");
-      row.className = "user-row";
-
-      const nameSpan = document.createElement("span");
-      nameSpan.className = "user-name";
-      nameSpan.textContent = name;
-
-      const statusSpan = document.createElement("span");
-      statusSpan.className = "status " + (isAvailable ? "available" : "unavailable");
-      if (isAvailable && id !== myId) {
-        statusSpan.style.cursor = "pointer";
-        statusSpan.textContent = "Available (1v1)";
-        statusSpan.onclick = () => sendPrivateInvite(id, name);
-      } else {
-        statusSpan.textContent = isAvailable ? "Available" : "Not available";
-      }
-      row.appendChild(nameSpan);
-      row.appendChild(statusSpan);
-      usersListDiv.appendChild(row);
-    });
-  });
-}
-
-presenceRef.on("value", refreshUsers);
-availableRef.on("value", refreshUsers);
-
-// Listener inviti privati (banner)
-privateInvitesRef.child(myId).on("value", snap => {
-  const invite = snap.val();
-  const banner = document.getElementById("inviteBanner");
-  const textSpan = document.getElementById("inviteText");
-  const joinBtn = document.getElementById("joinPrivateBtn");
-
-  if (!invite) {
-    banner.style.display = "none";
-    return;
-  }
-
-  banner.style.display = "block";
-  textSpan.textContent = `${invite.fromName} wants to play 1v1 with you`;
-
-  joinBtn.onclick = () => {
-    privateInvitesRef.child(myId).remove();
-    window.location.href = "?room=" + invite.roomId + "&with=" + encodeURIComponent(invite.fromName);
-  };
-});
-</script>
-</body>
-</html>
+      if (!user ||
