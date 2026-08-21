@@ -96,6 +96,8 @@ onSnapshot(collection(db, "presence"), (snapshot) => {
 // PRIVATE CHAT INVITE SYSTEM
 // ===============================
 function createPrivateInvite(targetUser) {
+
+  // Prevent self-invite
   if (!targetUser || targetUser === currentUser) {
     console.warn("Invalid private chat target:", targetUser);
     return;
