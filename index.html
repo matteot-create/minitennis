@@ -49,8 +49,6 @@ async function setPresence() {
   });
 }
 setPresence();
-
-// Auto-update presence every 20s
 setInterval(setPresence, 20000);
 
 // ===============================
@@ -62,7 +60,7 @@ onSnapshot(collection(db, "presence"), (snapshot) => {
   snapshot.forEach((docSnap) => {
     const user = docSnap.id;
 
-    // Check if user is in private chat
+    // label "in private chat" se l'utente è nella stanza corrente
     let privateLabel = "";
     if (currentRoom !== "general" && currentRoom.includes(user)) {
       privateLabel = `<span style="color:#777; font-size:12px;">(in private chat)</span>`;
@@ -78,12 +76,12 @@ onSnapshot(collection(db, "presence"), (snapshot) => {
     membersList.appendChild(div);
   });
 
-  // Add click listeners for private chat invites
+  // click su Available → invito alla chat privata
   document.querySelectorAll(".availableBtn").forEach(btn => {
     btn.onclick = () => {
       const targetUser = btn.dataset.user;
 
-      // Prevent self-invite
+      // niente self‑invite
       if (!targetUser || targetUser === currentUser) {
         console.warn("Invalid private chat target:", targetUser);
         return;
@@ -98,8 +96,6 @@ onSnapshot(collection(db, "presence"), (snapshot) => {
 // PRIVATE CHAT INVITE SYSTEM
 // ===============================
 function createPrivateInvite(targetUser) {
-
-  // Prevent self-invite
   if (!targetUser || targetUser === currentUser) {
     console.warn("Invalid private chat target:", targetUser);
     return;
@@ -107,18 +103,18 @@ function createPrivateInvite(targetUser) {
 
   const roomId = [currentUser, targetUser].sort().join("_");
 
-  // Send invite to B
+  // invito salvato per l'utente B
   setDoc(doc(db, "privateInvites", targetUser), {
     from: currentUser,
     roomId: roomId,
     timestamp: Date.now()
   });
 
-  // Switch A into private chat
+  // A entra subito nella stanza privata
   joinPrivateChat(roomId);
 }
 
-// Listen for incoming invites (for B)
+// listener inviti per chi è B
 onSnapshot(doc(db, "privateInvites", currentUser), (docSnap) => {
   if (docSnap.exists()) {
     const data = docSnap.data();
